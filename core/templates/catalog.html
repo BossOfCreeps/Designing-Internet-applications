@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Каталог{% endblock %}
+{% block content %}
+    <div class="col-8">
+        {% for product in products %}
+            <div class="vertical_card">
+                <a href="{% url "product" product.base_product.id %}">
+                    <img src="/media/{{ product.base_product.images.all.0 }}"
+                         alt="{{ product.base_product.description }}" width="160px" height="160px">
+                    <div style="height: 50px;">
+                        <b>{{ product.base_product.name }}</b> (<img src="{% static "img/star.png" %}"
+                                                                     width="20">{{ product.base_product.rate }})
+                    </div>
+                </a>
+                <span>{{ product.price }} ₽</span><br>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url "basket_add" product.id %}?path={{ request.path }}">
+                        <button>Купить</button>
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>Товаров нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block left_div %}
+    <div id="border-div">
+        <form action="{% url "catalog" category_id %}" method="get" class="catalog_left_div">
+            <label>Производитель<br>
+                <select name="manufacturer">
+                    <option {% if not sel_manufacturer %}selected{% endif %} value="">-</option>
+                    {% for manufacturer in manufacturers %}
+                        <option value="{{ manufacturer.id }}"
+                                {% if manufacturer == sel_manufacturer %}selected{% endif %}>
+                            {{ manufacturer.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Материал<br>
+                <select name="material">
+                    <option {% if not sel_material %} selected {% endif %}value="">-</option>
+                    {% for material in materials %}
+                        <option value="{{ material.id }}"
+                                {% if material == sel_material %}selected{% endif %}>
+                            {{ material.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <br>
+            <label>Ширина<br>
+                <input type="number" max="{{ widths_max }}" min="{{ widths_min }}" name="width_min"
+                       value="{{ width_min }}"> -
+                <input type="number" max="{{ widths_max }}" min="{{ widths_min }}" name="width_max"
+                       value="{{ width_max }}">
+            </label>
+            <br>
+            <label>Высота<br>
+                <input type="number" max="{{ heights_max }}" min="{{ heights_min }}" name="height_min"
+                       value="{{ height_min }}"> -
+                <input type="number" max="{{ heights_max }}" min="{{ heights_min }}" name="height_max"
+                       value="{{ height_max }}">
+            </label>
+            <br>
+            <label>Цена<br>
+                <input type="number" max="{{ prices_max }}" min="{{ prices_min }}" name="price_min"
+                       value="{{ price_min }}"> -
+                <input type="number" max="{{ prices_max }}" min="{{ prices_min }}" name="price_max"
+                       value="{{ price_max }}">
+            </label>
+            <br>
+            <input type="submit" value="Фильтр">
+        </form>
+    </div>
+{% endblock %}

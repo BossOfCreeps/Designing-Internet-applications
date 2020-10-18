@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Главная страница{% endblock %}
+{% block content %}
+    <div class="col-8">
+        {% for product in products %}
+            <div class="vertical_card">
+                <a href="{% url "product" product.base_product.id %}">
+                    <img src="/media/{{ product.base_product.images.all.0 }}"
+                         alt="{{ product.base_product.description }}" width="160px" height="160px">
+                    <div style="height: 50px;">
+                        <b>{{ product.base_product.name }}</b>
+                        (<img src="{% static "img/star.png" %}" width="20">{{ product.base_product.rate }})
+                    </div>
+                </a>
+                    <span>{{ product.price }} ₽</span><br>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url "basket_add" product.id %}?path={{ request.path }}">
+                        <button>Купить</button>
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

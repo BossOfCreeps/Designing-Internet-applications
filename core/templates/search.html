@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Поиск{% endblock %}
+
+{% block content %}
+    <div class="col-8 search">
+        {% for category in categories %}
+            <h1>{{ category.name }}</h1><br>
+            {% for product in products %}
+                {% if product.base_product.category == category %}
+                    <div class="vertical_card">
+                        <a href="{% url "product" product.base_product.id %}">
+                            <img src="/media/{{ product.base_product.images.all.0 }}" alt="{{ product.description }}"
+                                 width="160px" height="160px">
+                            <div style="height: 50px;">
+                                <b>{{ product.base_product.name }}</b>
+                                (<img src="{% static "img/star.png" %}" width="20">{{ product.base_product.rate }})
+                            </div>
+                        </a>
+                        <span>{{ product.price }} ₽</span><br>
+                        {% if request.user.is_authenticated %}
+                    <a href="{% url "basket_add" product.id %}?path={{ request.path }}">
+                                <button>Купить</button>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block left_div %}
+    <div id="border-div">
+        <ul>
+            {% for category in categories %}
+                <li>
+                    <a href="{% url "catalog" category.id %}" title="{{ category.description }}">
+                        {{ category.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Заказ {{ order.status.all.0.datetime|date:'Y-m-d H:i' }}{% endblock %}
+
+{% block content %}
+    <div class="col-8 order">
+        <h1>№{{ order.id }}<br>{{ order.status.all.0.datetime|date:'Y-m-d H:i' }}</h1><br>
+        <b>Способ оплаты:</b> {{ order.payment_method }}<br>
+        <b>Адрес доставки:</b> {{ order.address }}<br>
+        <b>Статусы:</b><br>
+        {% for status in order.status.all %}
+            {{ status.base_status.name }} {{ status.datetime|date:'Y-m-d H:i' }}<br>
+        {% endfor %}
+        <b>Товары:</b><br>
+        <table>
+            {% for order_product in order.products.all %}
+                <tr>
+                    <td width="500px"><a href="{% url "product" order_product.product.id %}">{{ order_product.product.base_product.name }}</a></td>
+                    <td width="100px">{{ order_product.product.price }} ₽</td>
+                    <td width="80px">{{ order_product.count }}</td>
+                    <td width="100px"><b>{{ order_product.price }} ₽</b></td>
+                </tr>
+            {% endfor %}
+        </table><br>
+        <b>Итого: </b><u>{{ order.price }}</u><br>
+
+    </div>
+{% endblock %}
+
