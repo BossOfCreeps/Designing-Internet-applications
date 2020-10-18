@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+    <div class="col-8 basket">
+        <h1>Корзина</h1>
+        Итого: <b id="order_price">{{ order.price }} ₽</b><br>
+        <table>
+            {% for order_product in order.products.all %}
+                <tr>
+                    <td width="500px"><a href="{% url "product" order_product.product.id %}">{{ order_product.product.base_product.name }}</a></td>
+                    <td width="100px">{{ order_product.product.price }} ₽</td>
+                    <td width="80px"><input type="number" value="{{ order_product.count }}" name="{{ order_product.id }}"></td>
+                    <td width="100px"><b id="{{ order_product.id }}">{{ order_product.sum_price }}</b></td>
+                </tr>
+            {% empty %}
+                Заказов нет
+            {% endfor %}
+        </table>
+        {% if order.products.all %}
+            <form action="{% url "basket_create" %}" method="post">
+                {% csrf_token %}
+                <h1>Адрес</h1>
+                {% for address in addresses %}
+                    <label>
+                        <input type="radio" name="address" value="{{ address.id }}">{{ address }}
+                    </label><br>
+                {% endfor %}
+                <h2>Создать новый адрес</h2>
+                <input type="text" name="name" placeholder="Название"><br>
+                <input type="text" name="city" placeholder="Город"><br>
+                <input type="text" name="street" placeholder="Улица"><br>
+                <input type="text" name="home" placeholder="Дом">
+                <input type="text" name="flat" placeholder="Квартира">
+
+                <h1>Способ оплаты</h1>
+                {% for payment_method in payment_methods %}
+                    <label>
+                        <input type="radio" name="payment_method" value="{{ payment_method.id }}">{{ payment_method }}
+                    </label><br>
+                {% endfor %}
+                <div style="text-align: center"><input type="submit" value="Заказать"></div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $("input[type='number']").change(function () {
+            $.ajax({
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                type: "POST",
+                url: "{% url "count" %}",
+                data: {id: $(this).attr('name'), val: $(this).val()},
+                success: function (response) {
+                    var json = jQuery.parseJSON(response);
+                    $("#order_price").html(json.order_price);
+                    $("#" + json.id).html(json.product_price);
+                    if ($('input[name="' + json.id + '"]').val() < 1) {
+                        location.reload();
+                    }
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
